@@ -1,0 +1,78 @@
+<games>
+	<game id="G001">
+		<name>TRAMPOLINE PARK</name>
+		<category>1</category>
+	</game>
+	<game id="G002">
+		<name>CLIMBING ZONE</name>
+		<category>1</category>
+	</game>
+	<game id="G003">
+		<name>NINJA WARRIOR LANE 1</name>
+		<category>1</category>
+	</game>
+	<game id="G004">
+		<name>NINJA WARRIOR LANE 2</name>
+		<category>1</category>
+	</game>
+	<game id="G005">
+		<name>NINJA WARRIOR LANE 3</name>
+		<category>1</category>
+	</game>
+	<game id="G006">
+		<name>NINJA WARRIOR LANE 4</name>
+		<category>1</category>
+	</game>
+	<game id="G007">
+		<name>ROPES COURSE</name>
+		<category>1</category>
+	</game>
+	<game id="G008">
+		<name>SKI SIMULATOR</name>
+		<category>1</category>
+	</game>
+	<game id="S001">
+		<name>VR X-FIGTER</name>
+		<category>4</category>
+	</game>
+	<game id="S002">
+		<name>VR BIRDLY</name>
+		<category>4</category>
+	</game>
+	<game id="S003">
+		<name>VR RACING</name>
+		<category>4</category>
+	</game>
+	<game id="P001">
+		<name>STATIE PLAYSTATION 1</name>
+		<category>3</category>
+	</game>
+	<game id="P002">
+		<name>STATIE PLAYSTATION 2</name>
+		<category>3</category>
+	</game>
+	<game id="P003">
+		<name>STATIE PLAYSTATION 3</name>
+		<category>3</category>
+	</game>
+	<game id="P004">
+		<name>STATIE PLAYSTATION 4</name>
+		<category>3</category>
+	</game>
+	<game id="A001">
+		<name>E-Claw Cosmic</name>
+		<category>2</category>
+	</game>
+	<game id="A002">
+		<name>Masa AirHockey Kids Baby Balloon</name>
+		<category>2</category>
+	</game>
+	<game id="A003">
+		<name>Basket Dinosaur Rock</name>
+		<category>2</category>
+	</game>
+	<game id="A004">
+		<name>Goldfishing</name>
+		<category>2</category>
+	</game>
+</games>

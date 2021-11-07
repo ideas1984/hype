@@ -1,23 +1,25 @@
 package ro.android.hype;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.MifareClassic;
 import android.nfc.tech.MifareUltralight;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    NfcAdapter nfcAdapter;
-    PendingIntent pendingIntent;
+    private NfcAdapter nfcAdapter;
+    private PendingIntent pendingIntent;
     final static String TAG = "nfc_test";
 
     @Override
@@ -31,17 +33,38 @@ public class MainActivity extends AppCompatActivity {
 
         //Initialise NfcAdapter
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
         //If no NfcAdapter, display that the device has no NFC
         if (nfcAdapter == null) {
-            Toast.makeText(this, "NO NFC Capabilities",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Acest telefon nu dispune de functia NFC", Toast.LENGTH_LONG).show();
             finish();
         }
+
+
+
         //Create a PendingIntent object so the Android system can
         //populate it with the details of the tag when it is scanned.
         //PendingIntent.getActivity(Context,requestcode(identifier for intent),intent,int)
         pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (!nfcAdapter.isEnabled()) {
+            AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
+            dlgAlert.setMessage("Functia NFC este dezactivata. Vei fi redirectionat in setarile telefonului.\nActiveaza NFC-ul si intoarce-te inapoi in aplicatie!");
+            dlgAlert.setCancelable(false);
+            dlgAlert.setPositiveButton("Ok",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
+                        }
+                    });
+            dlgAlert.create().show();
+        }
     }
 
     @Override
