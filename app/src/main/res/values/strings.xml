@@ -1,9 +1,16 @@
 <resources>
     <string name="app_name">HYPE</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="invalid_card">Acest card este invalid!\n Incearca alt card.</string>
-    <string name="nfc_not_active">Functia NFC este dezactivata. Vei fi redirectionat in setarile telefonului.
-Activeaza NFC-ul si intoarce-te inapoi in aplicatie!</string>
+    <string name="name">Nume:</string>
+    <string name="tokens">Credit:</string>
+
+    <string name="invalid_card">\nIncearca alt card.</string>
+    <string name="nfc_not_active">Functia NFC este dezactivata. Vei fi redirectionat in setarile telefonului.\nActiveaza NFC-ul si intoarce-te inapoi in aplicatie!</string>
+    <string name="no_nfc">Acest telefon nu dispune de functia NFC</string>
+    <string name="processing_results">In procesare ..</string>
+    <string name="server_connection_problem">Conexiunea la server nu se poate face.\nVerifica conexiunea la internet.</string>
+
+    <string name="success_pay">Creditul a fost retras cu succes!\nCredit disponibil:</string>
+    <string name="error_pay">Eroare plata. Motiv: \n</string>
+
 </resources>
