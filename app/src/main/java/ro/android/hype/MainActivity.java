@@ -13,14 +13,31 @@ import android.nfc.tech.MifareUltralight;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.Toast;
+
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import ro.android.hype.xmlutil.CategoriesParser;
+import ro.android.hype.xmlutil.Category;
+import ro.android.hype.xmlutil.Game;
+import ro.android.hype.xmlutil.GamesParser;
 
 public class MainActivity extends AppCompatActivity {
 
     private NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
     final static String TAG = "nfc_test";
+
+    private ExpandableListView expandableListView;
+    private ExpandableListAdapter expandableListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getSupportActionBar().hide();
 
-        setContentView(R.layout.activity_main);
 
         //Initialise NfcAdapter
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -40,12 +56,14 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
-
-
         //Create a PendingIntent object so the Android system can
         //populate it with the details of the tag when it is scanned.
         //PendingIntent.getActivity(Context,requestcode(identifier for intent),intent,int)
         pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        setContentView(R.layout.activity_main);
+
+        ScanFragment fragment = ScanFragment.newInstance();
+        getSupportFragmentManager().beginTransaction().replace(R.id.replaceable, fragment).commitNow();
 
     }
 
@@ -98,6 +116,52 @@ public class MainActivity extends AppCompatActivity {
             Tag tag = (Tag) intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             assert tag != null;
 
+            ChooseGameFragment fragment = ChooseGameFragment.newInstance();
+            getSupportFragmentManager().beginTransaction().replace(R.id.replaceable, fragment).commitNow();
+
+
+
+            try {
+                Map<Integer, List<Game>> gamesMap = new GamesParser().parse(getAssets().open("games.xml"));
+
+                for(List<Game> gamesList : gamesMap.values()) {
+                    for(Game game : gamesList) {
+                        System.out.println(game.getId() + "    " + game.getName() + "   " +  game.getCategory());
+                    }
+                }
+
+                List<Category> categories = new CategoriesParser().parse(getAssets().open("categories.xml"));
+
+                for(Category category : categories) {
+                    System.out.println(category.getId() + "    " + category.getName());
+                }
+
+
+                expandableListView = findViewById(R.id.expandableList);
+                expandableListAdapter = new MyExpandableListAdapter(this, categories, gamesMap);
+                expandableListView.setAdapter(expandableListAdapter);
+                expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+                    int lastExppandedPosition = -1;
+                    @Override
+                    public void onGroupExpand(int groupPosition) {
+                        if(lastExppandedPosition != -1 && groupPosition != lastExppandedPosition) {
+                            expandableListView.collapseGroup(lastExppandedPosition);
+                            lastExppandedPosition = groupPosition;
+                        }
+                    }
+                });
+                expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+                    @Override
+                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                        String selected = expandableListAdapter.getChild(groupPosition, childPosition).toString();
+                        Toast.makeText(getApplicationContext(), "Selected: " + selected, Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                });
+
+            } catch (IOException | XmlPullParserException e) {
+                e.printStackTrace();
+            }
 
 
             byte[] payload = detectTagData(tag).getBytes();
