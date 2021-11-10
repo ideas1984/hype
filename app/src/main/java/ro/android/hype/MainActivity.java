@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!nfcAdapter.isEnabled()) {
             AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
-            dlgAlert.setMessage("Functia NFC este dezactivata. Vei fi redirectionat in setarile telefonului.\nActiveaza NFC-ul si intoarce-te inapoi in aplicatie!");
+            dlgAlert.setMessage(R.string.nfc_not_active);
             dlgAlert.setCancelable(false);
             dlgAlert.setPositiveButton("Ok",
                     new DialogInterface.OnClickListener() {
@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
             expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                 @Override
                 public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                    String selected = expandableListAdapter.getChild(groupPosition, childPosition).toString();
+                    String selected = ((Game)expandableListAdapter.getChild(groupPosition, childPosition)).getId();
                     Toast.makeText(getApplicationContext(), "Selected: " + selected, Toast.LENGTH_SHORT).show();
                     return true;
                 }

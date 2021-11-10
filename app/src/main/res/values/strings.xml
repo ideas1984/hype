@@ -3,4 +3,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="invalid_card">Acest card este invalid!\n Incearca alt card.</string>
+    <string name="nfc_not_active">Functia NFC este dezactivata. Vei fi redirectionat in setarile telefonului.
+Activeaza NFC-ul si intoarce-te inapoi in aplicatie!</string>
 </resources>
