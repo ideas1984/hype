@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         if (!nfcAdapter.isEnabled()) {
-            AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
+            AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
             dlgAlert.setMessage("Functia NFC este dezactivata. Vei fi redirectionat in setarile telefonului.\nActiveaza NFC-ul si intoarce-te inapoi in aplicatie!");
             dlgAlert.setCancelable(false);
             dlgAlert.setPositiveButton("Ok",
@@ -108,6 +108,92 @@ public class MainActivity extends AppCompatActivity {
         resolveIntent(intent);
     }
 
+    public static String getDec(String hex) {
+        String newHex = hex.substring(6, 8) + hex.substring(4, 6) + hex.substring(2, 4) + hex.substring(0, 2);
+        System.out.println(newHex);
+
+        String dec = String.valueOf(Long.parseLong(newHex, 16));
+
+        while (dec.length() < 10) {
+            dec = "0" + dec;
+        }
+        return dec;
+    }
+
+    public static long getDecimal(String hex) {
+        String digits = "0123456789ABCDEF";
+        hex = hex.toUpperCase();
+        long val = 0;
+        for (int i = 0; i < hex.length(); i++) {
+            char c = hex.charAt(i);
+            int d = digits.indexOf(c);
+            val = 16 * val + d;
+        }
+        return val;
+    }
+
+    private String getMariusReversedDec(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = bytes.length - 1; i >= 0; --i) {
+            int b = bytes[i] & 0xff;
+            if (b < 0x10)
+                sb.append('0');
+            sb.append(Integer.toHexString(b));
+        }
+
+        return getDec(sb.toString());
+
+
+    }
+
+    private void openInfoScreen() {
+        ChooseGameFragment fragment = ChooseGameFragment.newInstance();
+        getSupportFragmentManager().beginTransaction().replace(R.id.replaceable, fragment).commitNow();
+
+        try {
+            Map<Integer, List<Game>> gamesMap = new GamesParser().parse(getAssets().open("games.xml"));
+
+//            for(List<Game> gamesList : gamesMap.values()) {
+//                for(Game game : gamesList) {
+//                    System.out.println(game.getId() + "    " + game.getName() + "   " +  game.getCategory());
+//                }
+//            }
+
+            List<Category> categories = new CategoriesParser().parse(getAssets().open("categories.xml"));
+
+//            for(Category category : categories) {
+//                System.out.println(category.getId() + "    " + category.getName());
+//            }
+
+
+            expandableListView = findViewById(R.id.expandableList);
+            expandableListAdapter = new MyExpandableListAdapter(this, categories, gamesMap);
+            expandableListView.setAdapter(expandableListAdapter);
+            expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+                int lastExppandedPosition = -1;
+
+                @Override
+                public void onGroupExpand(int groupPosition) {
+                    if (lastExppandedPosition != -1 && groupPosition != lastExppandedPosition) {
+                        expandableListView.collapseGroup(lastExppandedPosition);
+                        lastExppandedPosition = groupPosition;
+                    }
+                }
+            });
+            expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+                @Override
+                public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                    String selected = expandableListAdapter.getChild(groupPosition, childPosition).toString();
+                    Toast.makeText(getApplicationContext(), "Selected: " + selected, Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
+
+        } catch (IOException | XmlPullParserException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void resolveIntent(Intent intent) {
         String action = intent.getAction();
         if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)
@@ -115,56 +201,12 @@ public class MainActivity extends AppCompatActivity {
                 || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
             Tag tag = (Tag) intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             assert tag != null;
-
-            ChooseGameFragment fragment = ChooseGameFragment.newInstance();
-            getSupportFragmentManager().beginTransaction().replace(R.id.replaceable, fragment).commitNow();
-
-
-
-            try {
-                Map<Integer, List<Game>> gamesMap = new GamesParser().parse(getAssets().open("games.xml"));
-
-                for(List<Game> gamesList : gamesMap.values()) {
-                    for(Game game : gamesList) {
-                        System.out.println(game.getId() + "    " + game.getName() + "   " +  game.getCategory());
-                    }
-                }
-
-                List<Category> categories = new CategoriesParser().parse(getAssets().open("categories.xml"));
-
-                for(Category category : categories) {
-                    System.out.println(category.getId() + "    " + category.getName());
-                }
-
-
-                expandableListView = findViewById(R.id.expandableList);
-                expandableListAdapter = new MyExpandableListAdapter(this, categories, gamesMap);
-                expandableListView.setAdapter(expandableListAdapter);
-                expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
-                    int lastExppandedPosition = -1;
-                    @Override
-                    public void onGroupExpand(int groupPosition) {
-                        if(lastExppandedPosition != -1 && groupPosition != lastExppandedPosition) {
-                            expandableListView.collapseGroup(lastExppandedPosition);
-                            lastExppandedPosition = groupPosition;
-                        }
-                    }
-                });
-                expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-                    @Override
-                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                        String selected = expandableListAdapter.getChild(groupPosition, childPosition).toString();
-                        Toast.makeText(getApplicationContext(), "Selected: " + selected, Toast.LENGTH_SHORT).show();
-                        return true;
-                    }
-                });
-
-            } catch (IOException | XmlPullParserException e) {
-                e.printStackTrace();
-            }
-
-
             byte[] payload = detectTagData(tag).getBytes();
+
+            System.out.println("reverse decimal=" + toReversedDec10Digits(tag.getId()));
+            System.out.println("getChecksum=" + getChecksum(toReversedDec10Digits(tag.getId())));
+
+            openInfoScreen();
         }
     }
 
@@ -291,6 +333,39 @@ public class MainActivity extends AppCompatActivity {
             factor *= 256l;
         }
         return result;
+    }
+
+    private String toReversedDec10Digits(byte[] bytes) {
+        String reversedDecimal = String.valueOf(toReversedDec(bytes));
+
+        while (reversedDecimal.length() < 10) {
+            reversedDecimal = "0" + reversedDecimal;
+        }
+
+        return reversedDecimal;
+    }
+
+    private String getChecksum(String string) {
+        int factor = 3;
+        int odd_total = 0;
+        int even_total = 0;
+
+        for (int i = 0; i < string.length(); i++) {
+            int j = string.charAt(i) - '0';
+
+            if (((i + 1) % 2) == 0) {
+                even_total += j;
+            } else {
+                odd_total += j;
+            }
+        }
+
+        int sum = (factor * odd_total) + even_total;
+
+        int check_digit = sum % 10;
+
+        int result = (check_digit > 0) ? 10 - check_digit : check_digit;
+        return String.valueOf(result);
     }
 
 }
